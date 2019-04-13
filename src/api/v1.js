@@ -1,5 +1,8 @@
 'use strict';
 
+const Q = require('@nmq/q/client');
+
+
 /**
  * API Router Module (V1)
  * Integrates with various models through a common Interface (.get(), .post(), .put(), .delete())
@@ -43,6 +46,7 @@ function handleGetAll(request,response,next) {
         count: data.length,
         results: data,
       };
+      Q.publish('database', 'get', output);
       response.status(200).json(output);
     })
     .catch( next );
@@ -57,7 +61,10 @@ function handleGetAll(request,response,next) {
  */
 function handleGetOne(request,response,next) {
   request.model.get(request.params.id)
-    .then( result => response.status(200).json(result[0]) )
+    .then( result => {
+      Q.publish('database', 'get', result[0]);
+      response.status(200).json(result[0]); 
+    })
     .catch( next );
 }
 
@@ -70,7 +77,10 @@ function handleGetOne(request,response,next) {
  */
 function handlePost(request,response,next) {
   request.model.post(request.body)
-    .then( result => response.status(200).json(result) )
+    .then( result => {
+      Q.publish('database', 'post', result);
+      response.status(200).json(result); 
+    })
     .catch( next );
 }
 
@@ -83,7 +93,10 @@ function handlePost(request,response,next) {
  */
 function handlePut(request,response,next) {
   request.model.put(request.params.id, request.body)
-    .then( result => response.status(200).json(result) )
+    .then( result => {
+      Q.publish('database', 'put', result);
+      response.status(200).json(result); 
+    })
     .catch( next );
 }
 
@@ -96,7 +109,10 @@ function handlePut(request,response,next) {
  */
 function handleDelete(request,response,next) {
   request.model.delete(request.params.id)
-    .then( result => response.status(200).json(result) )
+    .then( result => {
+      Q.publish('database', 'delete', result);
+      response.status(200).json(result); 
+    })
     .catch( next );
 }
 
